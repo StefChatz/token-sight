@@ -13,7 +13,7 @@ export interface LiquidityPool {
   name: string;
 }
 
-export interface ApiResponse {
+export interface ApiTokenResponse {
   data: {
     id: string;
     type: string;
@@ -33,5 +33,30 @@ export interface ApiResponse {
       market_cap_usd: string;
     };
     relationships: {}; // Define more specifically if relationships have a known structure
+  };
+}
+
+export interface ApiPoolResponse {
+  data: {
+    id: string;
+    type: string;
+    attributes: {
+      name: string;
+      address: string;
+      base_token_price_usd: string;
+      quote_token_price_usd: string;
+      base_token_price_native_currency: string;
+      quote_token_price_native_currency: string;
+      base_token_price_quote_token: string;
+      quote_token_price_base_token: string;
+      pool_created_at: string;
+      reserve_in_usd: string;
+      fdv_usd: string;
+      market_cap_usd: string;
+      price_change_percentage: {};
+      transactions: {};
+      volume_usd: {};
+    };
+    relationships: {};
   };
 }

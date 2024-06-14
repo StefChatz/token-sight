@@ -16,28 +16,39 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { ClipboardIcon } from 'lucide-react';
-import { ApiResponse, SecurityInfo } from './types';
+import { ApiTokenResponse, ApiPoolResponse, SecurityInfo } from './types';
+
+export const truncateNumber = (num: number): string => {
+  return num.toLocaleString(undefined, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 4,
+  });
+};
 
 const ConnectedPage = () => {
   const [open, setOpen] = React.useState(false);
-  const [inputValue, setInputValue] = React.useState('');
   const [loading, setLoading] = React.useState(false);
-  const [isToken, setIsToken] = React.useState(true);
-  const { contractAddress, setContractAddress, tokenData, setTokenData } =
-    useStore();
+  const {
+    searchAddress,
+    setSearchAddress,
+    tokenData,
+    setTokenData,
+    isToken,
+    setIsToken,
+  } = useStore();
 
   React.useEffect(() => {
-    const savedContractAddress = localStorage.getItem('contractAddress');
+    const savedContractAddress = localStorage.getItem('searchAddress');
     const savedTokenData = localStorage.getItem('tokenData');
 
     if (savedContractAddress) {
-      setContractAddress(savedContractAddress);
+      setSearchAddress(savedContractAddress);
     }
 
     if (savedTokenData) {
       setTokenData(JSON.parse(savedTokenData));
     }
-  }, [setContractAddress, setTokenData]);
+  }, [setSearchAddress, setTokenData]);
 
   const CommandInputComp = () => {
     const [localInputValue, setLocalInputValue] = React.useState('');
@@ -48,6 +59,7 @@ const ConnectedPage = () => {
     };
 
     const handleRadioChange = (value: string) => {
+      console.log('value', value);
       setLocalIsToken(value === 'token');
     };
 
@@ -56,14 +68,20 @@ const ConnectedPage = () => {
       const address = localInputValue.trim();
 
       if (address) {
-        const url = `https://api.geckoterminal.com/api/v2/networks/${network}/tokens/${address}`;
+        const url = localIsToken
+          ? `https://api.geckoterminal.com/api/v2/networks/${network}/tokens/${address}`
+          : `https://api.geckoterminal.com/api/v2/networks/${network}/pools/${address}?include=base_token`;
+
         try {
           setLoading(true);
-          const response = await axios.get<ApiResponse>(url);
+          const response = await axios.get<ApiTokenResponse | ApiPoolResponse>(
+            url
+          );
           console.log('API Response:', response.data);
-          setContractAddress(response.data.data.attributes.address);
-          setIsToken(localIsToken);
+
+          setSearchAddress(response.data.data.attributes.address);
           setTokenData(response.data.data.attributes);
+          setIsToken(localIsToken);
         } catch (error) {
           console.error('API Error:', error);
         } finally {
@@ -137,7 +155,7 @@ const ConnectedPage = () => {
         <div className="flex flex-col items-center justify-center space-y-10 pb-2">
           <h1 className="text-5xl font-bold">{tokenData?.name}</h1>
           <div className="flex items-center space-x-2">
-            <p className="text-sm text-muted-foreground">{`$${
+            <p className="text-sm text-muted-foreground">{`${
               tokenData?.symbol
             } - ${formatAddress(tokenData?.address || '')}`}</p>
             <CopyToClipboard
@@ -292,7 +310,7 @@ const ConnectedPage = () => {
           const response = await axios.get(url);
           const resultKey = Object.keys(response.data.result)[0];
           setSecurityInfo(response.data.result[resultKey]);
-
+          console.log('securityInfo', response);
           if (response.data.result[resultKey].dex) {
             const pools = response.data.result[resultKey].dex;
             const highestLiquidityPool = pools.reduce(
@@ -336,22 +354,112 @@ const ConnectedPage = () => {
               value={formatAddress(securityInfo.creator_address)}
             />
           </div>
-          <iframe
-            referrerPolicy="no-referrer"
-            id="dextools-widget"
-            title="DEXTools Trading Chart"
-            width="500"
-            height="500"
-            src={`https://www.dextools.io/widget-chart/en/ether/pe-light/${highestLiquidityPair}?theme=dark&chartType=2&chartResolution=30&drawingToolbars=false`}
-          ></iframe>
         </div>
 
         <h4 className="text-2xl font-bold text-white">Liquidity Pools</h4>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {securityInfo.dex.map((pool: any, index: number) => (
-            <PoolCard key={index} pool={pool} />
-          ))}
+          {securityInfo.dex && securityInfo.dex.length > 0 ? (
+            securityInfo.dex.map((pool: any, index: number) => (
+              <PoolCard key={index} pool={pool} />
+            ))
+          ) : (
+            <div>No liquidity pools found.</div>
+          )}
         </div>
+      </div>
+    );
+  };
+
+  const PoolData = ({
+    network,
+    poolAddress,
+  }: {
+    network: string;
+    poolAddress: string;
+  }) => {
+    const [poolData, setPoolData] = React.useState<any>(null);
+
+    console.log('poolData', poolData);
+
+    React.useEffect(() => {
+      const fetchPoolData = async () => {
+        try {
+          const url = `https://api.geckoterminal.com/api/v2/networks/${network}/pools/${poolAddress}`;
+          console.log('url', url);
+          const response = await axios.get(url);
+          console.log('response', response);
+          setPoolData(response.data);
+        } catch (error) {
+          console.error('Failed to fetch pool data:', error);
+        }
+      };
+
+      fetchPoolData();
+    }, [network, poolAddress]);
+
+    if (!poolData) {
+      return <div className="text-white">Loading pool data...</div>;
+    }
+
+    return (
+      <div className="flex flex-col items-center justify-center space-y-10">
+        <h1 className="text-5xl font-bold">{poolData.data.attributes.name}</h1>
+        <div className="grid gap-4 md:grid-cols-3 md:gap-8 lg:grid-cols-3">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Base Token Price (USD)
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                $
+                {formatNumber(
+                  Number(poolData.data.attributes.base_token_price_usd)
+                )}
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Quote Token Price (USD)
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                $
+                {formatNumber(
+                  Number(
+                    truncateNumber(
+                      Number(poolData.data.attributes.quote_token_price_usd)
+                    )
+                  )
+                )}
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Volume (24h USD)
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                ${formatNumber(Number(poolData.data.attributes.volume_usd.h24))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+        <iframe
+          referrerPolicy="no-referrer"
+          id="dextools-widget"
+          title="DEXTools Trading Chart"
+          width="500"
+          height="500"
+          src={`https://www.dextools.io/widget-chart/en/ether/pe-light/${poolAddress}?theme=dark&chartType=1&chartResolution=30&drawingToolbars=false`}
+        ></iframe>
       </div>
     );
   };
@@ -362,16 +470,17 @@ const ConnectedPage = () => {
       {isToken ? (
         <div className="flex flex-col items-center justify-center space-y-10 pt-20">
           <CommandInputComp />
-          {contractAddress && (
+          {searchAddress && (
             <>
               <TokenCards />
-              <TokenSecurityInfo tokenAddress={contractAddress} />
+              <TokenSecurityInfo tokenAddress={searchAddress} />
             </>
           )}
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center space-y-10 pt-20">
           <CommandInputComp />
+          <PoolData network="eth" poolAddress={searchAddress} />
         </div>
       )}
     </main>
