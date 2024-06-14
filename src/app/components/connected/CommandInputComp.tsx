@@ -15,6 +15,7 @@ interface CommandInputCompProps {
   setTokenData: (data: any) => void;
   setIsToken: (isToken: boolean) => void;
   isToken: boolean;
+  className?: string;
 }
 
 const CommandInputComp = ({
@@ -22,11 +23,12 @@ const CommandInputComp = ({
   setTokenData,
   setIsToken,
   isToken,
+  className,
 }: CommandInputCompProps) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [localInputValue, setLocalInputValue] = useState('');
-  const [localIsToken, setLocalIsToken] = useState(isToken);
+  const [localIsToken, setLocalIsToken] = useState(null);
   const { toast } = useToast();
 
   React.useEffect(() => {
@@ -87,7 +89,7 @@ const CommandInputComp = ({
   };
 
   return (
-    <>
+    <div className={className}>
       <ShinyButton onClick={() => setOpen(true)}>
         <p className="text-sm">
           Press{' '}
@@ -133,7 +135,7 @@ const CommandInputComp = ({
           </Button>
         </form>
       </CommandDialog>
-    </>
+    </div>
   );
 };
 

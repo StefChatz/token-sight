@@ -1,25 +1,16 @@
 'use client';
 
 import * as React from 'react';
-import { CommandDialog, CommandInput } from '@/components/ui/command';
 import NavBar from '../NavBar';
-import { Input } from '@/components/ui/input';
-import { Button } from '../ui/button';
 import axios from 'axios';
 import useStore from '@/stores/useStore';
-import { Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatAddress, formatNumber } from '@/lib/formatNumbers';
-import ShinyButton from '@/components/ui/shinyButton';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { ClipboardIcon } from 'lucide-react';
-import { ApiTokenResponse, ApiPoolResponse, SecurityInfo } from '../types';
-import { useToast } from '@/components/ui/use-toast';
+import { SecurityInfo } from '../types';
 import TokenCards from './TokenCards';
 import CommandInputComp from './CommandInputComp';
-import { CommandDialogDemo } from './commandtest';
 
 export const truncateNumber = (num: number): string => {
   return num.toLocaleString(undefined, {
@@ -29,8 +20,6 @@ export const truncateNumber = (num: number): string => {
 };
 
 const ConnectedPage = () => {
-  const [open, setOpen] = React.useState(false);
-  const [loading, setLoading] = React.useState(false);
   const {
     searchAddress,
     setSearchAddress,
@@ -39,8 +28,6 @@ const ConnectedPage = () => {
     isToken,
     setIsToken,
   } = useStore();
-
-  const { toast } = useToast();
 
   React.useEffect(() => {
     const savedContractAddress = localStorage.getItem('searchAddress');
@@ -89,6 +76,10 @@ const ConnectedPage = () => {
   };
 
   const TokenSecurityInfo = ({ tokenAddress }: { tokenAddress: string }) => {
+    const [highestLiquidityPool, setHighestLiquidityPool] = React.useState<
+      string | null
+    >(null);
+
     const [securityInfo, setSecurityInfo] = React.useState<SecurityInfo | null>(
       null
     );
@@ -100,7 +91,7 @@ const ConnectedPage = () => {
           const response = await axios.get(url);
           const resultKey = Object.keys(response.data.result)[0];
           setSecurityInfo(response.data.result[resultKey]);
-          console.log('securityInfo', securityInfo);
+          setHighestLiquidityPool(response.data.result[resultKey].dex[0]);
         } catch (error) {
           console.error('Failed to fetch security info:', error);
         }
@@ -112,6 +103,7 @@ const ConnectedPage = () => {
     if (!securityInfo) {
       return <div className="text-white">Loading security information...</div>;
     }
+    console.log('highestLiquidityPool', highestLiquidityPool);
 
     return (
       <div className="flex flex-col items-center justify-center space-y-10">
@@ -170,6 +162,7 @@ const ConnectedPage = () => {
     network: string;
     poolAddress: string;
   }) => {
+    console.log('isToken', isToken);
     const [poolData, setPoolData] = React.useState<any>(null);
 
     console.log('poolData', poolData);
@@ -216,19 +209,12 @@ const ConnectedPage = () => {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Quote Token Price (USD)
+                Fully Diluted Value (USD)
               </CardTitle>
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                $
-                {formatNumber(
-                  Number(
-                    truncateNumber(
-                      Number(poolData.data.attributes.quote_token_price_usd)
-                    )
-                  )
-                )}
+                ${formatNumber(Number(poolData.data.attributes.fdv_usd))}
               </div>
             </CardContent>
           </Card>
@@ -241,6 +227,50 @@ const ConnectedPage = () => {
             <CardContent>
               <div className="text-2xl font-bold">
                 ${formatNumber(Number(poolData.data.attributes.volume_usd.h24))}
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Quote Token Price (Base Token)
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                $
+                {formatNumber(
+                  Number(poolData.data.attributes.quote_token_price_base_token)
+                )}
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Quote Token Price (USD)
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                $
+                {formatNumber(
+                  Number(poolData.data.attributes.quote_token_price_usd)
+                )}
+              </div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Pool hosted on
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {poolData.data.relationships.dex.data.id
+                  .replace(/_/g, ' ')
+                  .replace(/(^\w|\s\w)/g, (m: string) => m.toUpperCase())}
               </div>
             </CardContent>
           </Card>
@@ -260,16 +290,7 @@ const ConnectedPage = () => {
   return (
     <main className="flex flex-col items-center bg-gray-900 text-white">
       <NavBar />
-      {isToken === undefined ? (
-        <div className="flex flex-col items-center justify-center space-y-10 pt-20">
-          <CommandInputComp
-            setSearchAddress={setSearchAddress}
-            setTokenData={setTokenData}
-            setIsToken={setIsToken}
-            isToken={isToken}
-          />
-        </div>
-      ) : isToken ? (
+      {isToken ? (
         <div className="flex flex-col items-center justify-center space-y-10 pt-20">
           <CommandInputComp
             setSearchAddress={setSearchAddress}
@@ -285,14 +306,22 @@ const ConnectedPage = () => {
           )}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center space-y-10 pt-20">
+        <div className="flex flex-col items-center justify-center space-y-10 pt-20 h-screen">
+          {!searchAddress && (
+            <h1 className="text-2xl font-bold">
+              Search for a token or pool to get started
+            </h1>
+          )}
           <CommandInputComp
+            className="self-center"
             setSearchAddress={setSearchAddress}
             setTokenData={setTokenData}
             setIsToken={setIsToken}
             isToken={isToken}
           />
-          <PoolData network="eth" poolAddress={searchAddress} />
+          {searchAddress && (
+            <PoolData network="eth" poolAddress={searchAddress} />
+          )}
         </div>
       )}
     </main>

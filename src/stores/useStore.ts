@@ -1,5 +1,4 @@
 import { create } from 'zustand';
-import zukeeper from 'zukeeper';
 
 interface TokenAttributes {
   name: string;
@@ -19,7 +18,6 @@ interface TokenAttributes {
 
 interface PoolAttributes {
   name: string;
-  symbol: string;
   address: string;
   base_token_price_usd: string;
   quote_token_price_usd: string;
@@ -40,50 +38,57 @@ interface StoreState {
   isConnected: boolean;
   searchAddress: string;
   tokenData: TokenAttributes | PoolAttributes | null;
-  isToken: boolean;
+  isToken: boolean | null;
   setConnected: (status: boolean) => void;
   setSearchAddress: (address: string) => void;
   setTokenData: (data: TokenAttributes | PoolAttributes | null) => void;
   setIsToken: (isToken: boolean) => void;
 }
 
-const useStore = create<StoreState>(
-  zukeeper((set: (state: StoreState) => void) => ({
-    isConnected: false,
-    searchAddress:
-      typeof window !== 'undefined'
-        ? localStorage.getItem('searchAddress') || ''
-        : '',
-    tokenData:
-      typeof window !== 'undefined'
-        ? JSON.parse(localStorage.getItem('tokenData') || 'null')
-        : null,
-    isToken:
-      typeof window !== 'undefined'
-        ? localStorage.getItem('isToken') === 'true'
-        : undefined,
-    setConnected: (status: boolean) => set({ isConnected: status }),
-    setSearchAddress: (address: string) => {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('searchAddress', address);
-      }
-      set({ searchAddress: address });
-    },
-    setTokenData: (data: TokenAttributes | PoolAttributes | null) => {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('tokenData', JSON.stringify(data));
-      }
-      set({ tokenData: data });
-    },
-    setIsToken: (isToken: boolean) => {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('isToken', isToken.toString());
-      }
-      set({ isToken });
-    },
-  }))
-);
+const initialState: StoreState = {
+  isConnected: false,
+  searchAddress: '',
+  tokenData: null,
+  isToken: null,
+  setConnected: () => {},
+  setSearchAddress: () => {},
+  setTokenData: () => {},
+  setIsToken: () => {},
+};
 
-window.store = zukeeper(useStore);
+const useStore = create<StoreState>((set) => ({
+  isConnected: false,
+  searchAddress:
+    typeof window !== 'undefined'
+      ? localStorage.getItem('searchAddress') || ''
+      : '',
+  tokenData:
+    typeof window !== 'undefined'
+      ? JSON.parse(localStorage.getItem('tokenData') || 'null')
+      : null,
+  isToken:
+    typeof window !== 'undefined'
+      ? localStorage.getItem('isToken') === 'true'
+      : null,
+  setConnected: (status) => set({ isConnected: status }),
+  setSearchAddress: (address) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('searchAddress', address);
+    }
+    set({ searchAddress: address });
+  },
+  setTokenData: (data) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('tokenData', JSON.stringify(data));
+    }
+    set({ tokenData: data });
+  },
+  setIsToken: (isToken) => {
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('isToken', isToken.toString());
+    }
+    set({ isToken });
+  },
+}));
 
 export default useStore;

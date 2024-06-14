@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { ClipboardIcon } from 'lucide-react';
 import { formatNumber, formatAddress } from '@/lib/formatNumbers';
+import Image from 'next/image';
 
 interface TokenData {
   name?: string;
@@ -32,7 +33,15 @@ const TokenCards = ({ tokenData }: TokenCardsProps) => {
   return (
     <div className="flex flex-col items-center justify-center space-y-10">
       <div className="flex flex-col items-center justify-center space-y-10 pb-2">
-        <h1 className="text-5xl font-bold">{tokenData.name}</h1>
+        <div className="flex items-center space-x-4">
+          <img
+            src={tokenData?.image_url}
+            alt={tokenData.name}
+            width={48}
+            height={48}
+          />
+          <h1 className="text-5xl font-bold">{tokenData.name}</h1>
+        </div>
         <div className="flex items-center space-x-2">
           <p className="text-sm text-muted-foreground">{`${
             tokenData.symbol

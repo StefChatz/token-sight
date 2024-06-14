@@ -21,7 +21,7 @@ const formatNumber = (num: number): string | null => {
     unitIndex = units.length - 1; // Set to the last available unit
   }
 
-  return `${scaledValue.toFixed(3)}${units[unitIndex]}`;
+  return `${scaledValue.toFixed(3)} ${units[unitIndex]}`;
 };
 
 const formatAddress = (address: string) => {
