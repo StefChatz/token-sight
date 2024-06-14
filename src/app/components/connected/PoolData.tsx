@@ -37,6 +37,7 @@ const PoolData = ({
   return (
     <div className="flex flex-col items-center justify-center space-y-10">
       <h1 className="text-5xl font-bold">{poolData.data.attributes.name}</h1>
+      <h1 className="text-2xl font-bold text-white">Token Info</h1>
       <div className="grid gap-4 md:grid-cols-3 md:gap-8 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -48,7 +49,11 @@ const PoolData = ({
             <div className="text-2xl font-bold">
               $
               {formatNumber(
-                Number(poolData.data.attributes.base_token_price_usd)
+                Number(
+                  Number(poolData.data.attributes.base_token_price_usd).toFixed(
+                    2
+                  )
+                )
               )}
             </div>
           </CardContent>
@@ -122,12 +127,13 @@ const PoolData = ({
           </CardContent>
         </Card>
       </div>
+      <h1 className="text-2xl font-bold text-white">Pool Trading Chart</h1>
       <iframe
         referrerPolicy="no-referrer"
         id="dextools-widget"
         title="DEXTools Trading Chart"
-        width="500"
-        height="500"
+        width={window.innerWidth / 1.1}
+        height={window.innerHeight / 1.1}
         src={`https://www.dextools.io/widget-chart/en/ether/pe-light/${poolAddress}?theme=dark&chartType=1&chartResolution=30&drawingToolbars=false`}
       ></iframe>
     </div>

@@ -51,7 +51,7 @@ const ConnectedPage = () => {
           )}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center space-y-10 pt-20 h-screen">
+        <div className="flex flex-col items-center justify-center space-y-10 py-20">
           {!searchAddress && (
             <h1 className="text-2xl font-bold">
               Search for a token or pool to get started

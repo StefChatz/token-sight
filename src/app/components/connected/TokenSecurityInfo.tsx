@@ -35,6 +35,17 @@ const TokenSecurityInfo = ({ tokenAddress }: { tokenAddress: string }) => {
 
   return (
     <div className="flex flex-col items-center justify-center space-y-10">
+      <h1 className="text-2xl font-bold text-white">
+        Highest Liquidity Pool Chart
+      </h1>
+      <iframe
+        referrerPolicy="no-referrer"
+        id="dextools-widget"
+        title="DEXTools Trading Chart"
+        width={window.innerWidth / 1.1}
+        height={window.innerHeight / 1.1}
+        src={`https://www.dextools.io/widget-chart/en/ether/pe-light/${highestLiquidityPool?.pair}?theme=dark&chartType=1&chartResolution=30&drawingToolbars=false`}
+      ></iframe>
       <h1 className="text-2xl font-bold text-white">Token Security Info</h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
