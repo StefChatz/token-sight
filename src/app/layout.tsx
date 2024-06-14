@@ -4,7 +4,7 @@ import type { Metadata } from 'next';
 import { headers } from 'next/headers';
 import { ThemeProvider } from './components/theme-provider';
 import { cookieToInitialState } from 'wagmi';
-
+import { Analytics } from '@vercel/analytics/react';
 import { config } from '../../config';
 import Web3ModalProvider from '../../context';
 import { Inter as FontSans } from 'next/font/google';
@@ -45,6 +45,7 @@ export default function RootLayout({
         >
           <Web3ModalProvider initialState={initialState}>
             {children}
+            <Analytics />
           </Web3ModalProvider>
         </ThemeProvider>
       </body>
