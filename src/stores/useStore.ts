@@ -19,6 +19,7 @@ interface TokenAttributes {
 
 interface PoolAttributes {
   name: string;
+  symbol: string;
   address: string;
   base_token_price_usd: string;
   quote_token_price_usd: string;
@@ -47,7 +48,7 @@ interface StoreState {
 }
 
 const useStore = create<StoreState>(
-  zukeeper((set) => ({
+  zukeeper((set: (state: StoreState) => void) => ({
     isConnected: false,
     searchAddress:
       typeof window !== 'undefined'
@@ -60,21 +61,21 @@ const useStore = create<StoreState>(
     isToken:
       typeof window !== 'undefined'
         ? localStorage.getItem('isToken') === 'true'
-        : true,
-    setConnected: (status) => set({ isConnected: status }),
-    setSearchAddress: (address) => {
+        : undefined,
+    setConnected: (status: boolean) => set({ isConnected: status }),
+    setSearchAddress: (address: string) => {
       if (typeof window !== 'undefined') {
         localStorage.setItem('searchAddress', address);
       }
       set({ searchAddress: address });
     },
-    setTokenData: (data) => {
+    setTokenData: (data: TokenAttributes | PoolAttributes | null) => {
       if (typeof window !== 'undefined') {
         localStorage.setItem('tokenData', JSON.stringify(data));
       }
       set({ tokenData: data });
     },
-    setIsToken: (isToken) => {
+    setIsToken: (isToken: boolean) => {
       if (typeof window !== 'undefined') {
         localStorage.setItem('isToken', isToken.toString());
       }

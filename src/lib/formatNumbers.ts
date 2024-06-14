@@ -1,8 +1,8 @@
-export const formatNumber = (num: number): string | null => {
+const formatNumber = (num: number): string | null => {
   if (num === null || num === undefined) return null;
   if (num < 1000) return num.toString();
 
-  const units = ['K', 'M', 'B', 'T', 'Q', 'Qi', 'S', 'Sp', 'O', 'N', 'D'];
+  const units = ['H', 'K', 'M', 'B', 'T', 'Q', 'Qi', 'S', 'Sp', 'O', 'N', 'D'];
   let unitIndex = 0;
   let scaledValue = num;
 
@@ -21,5 +21,11 @@ export const formatNumber = (num: number): string | null => {
     unitIndex = units.length - 1; // Set to the last available unit
   }
 
-  return `${scaledValue.toFixed(1)}${units[unitIndex]}`;
+  return `${scaledValue.toFixed(3)}${units[unitIndex]}`;
 };
+
+const formatAddress = (address: string) => {
+  return `${address.slice(0, 6)}...${address.slice(-4)}`;
+};
+
+export { formatAddress, formatNumber };

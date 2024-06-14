@@ -5,6 +5,10 @@ export interface SecurityInfo {
   is_blacklisted: boolean;
   creator_address: string;
   dex: LiquidityPool[];
+  holder_count: number;
+  holder_percent: number;
+  lp_holder_count: number;
+  lp_total_supply: number;
 }
 
 export interface LiquidityPool {

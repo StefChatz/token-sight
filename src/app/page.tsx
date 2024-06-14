@@ -8,7 +8,7 @@ import SparklesText from './components/ui/sparkles';
 import NotConnectedPage from './components/NotConnectedPage';
 import { Loader2 } from 'lucide-react';
 import NavBar from './components/NavBar';
-import ConnectedPage from './components/ConnectedPage';
+import ConnectedPage from './components/connected/ConnectedPage';
 import useStore from '../stores/useStore';
 
 export default function Home() {
