@@ -4,23 +4,10 @@ import { CopyToClipboard } from 'react-copy-to-clipboard';
 import { ClipboardIcon } from 'lucide-react';
 import { formatNumber, formatAddress } from '@/lib/formatNumbers';
 import Image from 'next/image';
-
-interface TokenData {
-  name?: string;
-  symbol?: string;
-  address?: string;
-  market_cap_usd?: number;
-  fdv_usd?: number;
-  volume_usd?: {
-    h24?: number;
-  };
-  total_supply?: number;
-  total_reserve_in_usd?: number;
-  price_usd?: number;
-}
+import { TokenAttributes } from '@/stores/types';
 
 interface TokenCardsProps {
-  tokenData?: TokenData;
+  tokenData?: TokenAttributes;
 }
 
 const TokenCards = ({ tokenData }: TokenCardsProps) => {
@@ -34,9 +21,9 @@ const TokenCards = ({ tokenData }: TokenCardsProps) => {
     <div className="flex flex-col items-center justify-center space-y-10">
       <div className="flex flex-col items-center justify-center space-y-10 pb-2">
         <div className="flex items-center space-x-4">
-          <img
-            src={tokenData?.image_url}
-            alt={tokenData.name}
+          <Image
+            src={tokenData.image_url || ''}
+            alt={tokenData.name || ''}
             width={48}
             height={48}
           />

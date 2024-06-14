@@ -13,8 +13,8 @@ import { Loader2 } from 'lucide-react';
 interface CommandInputCompProps {
   setSearchAddress: (address: string) => void;
   setTokenData: (data: any) => void;
-  setIsToken: (isToken: boolean) => void;
-  isToken: boolean;
+  setIsToken: (isToken: boolean | null) => void;
+  isToken: boolean | null;
   className?: string;
 }
 
@@ -22,13 +22,12 @@ const CommandInputComp = ({
   setSearchAddress,
   setTokenData,
   setIsToken,
-  isToken,
   className,
 }: CommandInputCompProps) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [localInputValue, setLocalInputValue] = useState('');
-  const [localIsToken, setLocalIsToken] = useState(null);
+  const [localIsToken, setLocalIsToken] = useState<boolean | null>(null);
   const { toast } = useToast();
 
   React.useEffect(() => {
