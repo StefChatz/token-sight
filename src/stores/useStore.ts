@@ -52,7 +52,7 @@ const useStore = create<StoreState>((set) => ({
   },
   setIsToken: (isToken) => {
     if (typeof window !== 'undefined') {
-      localStorage.setItem('isToken', isToken.toString());
+      localStorage.setItem('isToken', isToken?.toString() || '');
     }
     set({ isToken });
   },
