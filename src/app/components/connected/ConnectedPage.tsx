@@ -36,7 +36,7 @@ const ConnectedPage = () => {
     <main className="flex flex-col items-center bg-gray-900 text-white">
       <NavBar />
       {isToken ? (
-        <div className="flex flex-col items-center justify-center space-y-10 pt-20">
+        <div className="flex flex-col items-center justify-center space-y-10 py-20">
           <CommandInputComp
             setSearchAddress={setSearchAddress}
             setTokenData={setTokenData}
