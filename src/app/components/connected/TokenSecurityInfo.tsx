@@ -1,14 +1,13 @@
 import { useEffect, useState } from 'react';
 import InfoCard from './InfoCard';
 import axios from 'axios';
-import { SecurityInfo } from '../types';
+import { SecurityInfo, highestLiquidityPoolType } from '../types';
 import { formatAddress } from '@/lib/formatNumbers';
 import PoolCard from './PoolCard';
 
 const TokenSecurityInfo = ({ tokenAddress }: { tokenAddress: string }) => {
-  const [highestLiquidityPool, setHighestLiquidityPool] = useState<
-    string | null
-  >(null);
+  const [highestLiquidityPool, setHighestLiquidityPool] =
+    useState<highestLiquidityPoolType | null>(null);
 
   const [securityInfo, setSecurityInfo] = useState<SecurityInfo | null>(null);
 

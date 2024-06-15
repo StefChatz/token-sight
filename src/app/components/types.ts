@@ -32,11 +32,11 @@ export interface ApiTokenResponse {
       fdv_usd: string;
       total_reserve_in_usd: string;
       volume_usd: {
-        h24: string; // Assuming h24 is a property under volume_usd
+        h24: string;
       };
       market_cap_usd: string;
     };
-    relationships: {}; // Define more specifically if relationships have a known structure
+    relationships: {};
   };
 }
 
@@ -63,4 +63,11 @@ export interface ApiPoolResponse {
     };
     relationships: {};
   };
+}
+
+export interface highestLiquidityPoolType {
+  liquidity: string;
+  liquidity_type: string;
+  name: string;
+  pair: string;
 }
