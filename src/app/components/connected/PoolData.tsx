@@ -12,8 +12,6 @@ const PoolData = ({
 }) => {
   const [poolData, setPoolData] = useState<any>(null);
 
-  console.log('poolData', poolData);
-
   useEffect(() => {
     const fetchPoolData = async () => {
       try {
@@ -37,7 +35,7 @@ const PoolData = ({
   return (
     <div className="flex flex-col items-center justify-center space-y-10">
       <h1 className="text-5xl font-bold">{poolData.data.attributes.name}</h1>
-      <h1 className="text-2xl font-bold text-white">Token Info</h1>
+      <h1 className="text-2xl font-bold text-white">Pool Info</h1>
       <div className="grid gap-4 md:grid-cols-3 md:gap-8 lg:grid-cols-3">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
