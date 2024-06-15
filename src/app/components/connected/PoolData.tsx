@@ -3,6 +3,14 @@ import { formatNumber } from '@/lib/formatNumbers';
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 
+const customFormatNumber = (value: number): string => {
+  if (value >= 1) {
+    return value.toFixed(2);
+  } else {
+    return value.toString();
+  }
+};
+
 const PoolData = ({
   network,
   poolAddress,
@@ -44,12 +52,12 @@ const PoolData = ({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
+            <div className="text-2xl font-bold break-words">
               $
               {formatNumber(
                 Number(
-                  Number(poolData.data.attributes.base_token_price_usd).toFixed(
-                    2
+                  customFormatNumber(
+                    Number(poolData.data.attributes.base_token_price_usd)
                   )
                 )
               )}
